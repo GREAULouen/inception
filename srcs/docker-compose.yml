@@ -6,3 +6,7 @@ services:
     container_name: nginx
     ports:
       - "80:80"
+
+  wordpress:
+    build: requirements/wordpress/
+    container_name: wp-php
