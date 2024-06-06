@@ -1,0 +1,10 @@
+[mysqld]
+user = root
+pid-file = /run/mysqld/mysqld.pid
+
+basedir = /usr
+datadir = /var/lib/mysql
+tmpdir = /tmp
+
+# bind_address=mariadb
+port = 3306
