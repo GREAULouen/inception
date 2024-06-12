@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM debian:buster-slim
 
 # Install NGINX
 RUN apt-get update && apt-get install -y \
@@ -11,8 +11,8 @@ COPY conf/nginx.conf /etc/nginx/nginx.conf
 # Create required directories
 RUN mkdir -p /run/nginx
 
-# Expose port 80 and 443
-EXPOSE 80 443
+# Expose port 443
+EXPOSE 443
 
 # Start NGINX
 CMD ["nginx", "-g", "daemon off;"]

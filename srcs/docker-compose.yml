@@ -8,33 +8,50 @@ services:
       - ./nginx/html:/usr/share/nginx/html
       - ./nginx/certs:/etc/nginx/certs
     ports:
-      - "80:80"
       - "443:443"
     restart: always
+    environment:
+      - NGINX_HOST=lgreau.42.fr
+    secrets:
+      - db_password
 
   mariadb:
     build:
       context: ./requirements/mariadb
     environment:
-      MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: wordpress
-      MYSQL_USER: wpuser
-      MYSQL_PASSWORD: wppassword
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: /run/secrets/db_password
     volumes:
-      - db_data:/var/lib/mysql
+      - /home/lgreau/data/db:/var/lib/mysql
     restart: always
+    secrets:
+      - db_password
 
   wordpress:
     build:
       context: ./requirements/wordpress
     volumes:
-      - wp_data:/var/www/html
+      - /home/lgreau/data/wp:/var/www/html
     environment:
       WORDPRESS_DB_HOST: mariadb:3306
-      WORDPRESS_DB_USER: wpuser
-      WORDPRESS_DB_PASSWORD: wppassword
-      WORDPRESS_DB_NAME: wordpress
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: /run/secrets/db_password
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+      WP_ADMIN_USER: ${WP_ADMIN_USER}
+      WP_ADMIN_PASSWORD: ${WP_ADMIN_PASSWORD}
     restart: always
+    secrets:
+      - db_password
+
+secrets:
+  db_password:
+    file: ./../secrets/db_password.txt
+  db_root_password:
+    file: ./../secrets/db_root_password.txt
+  credentials:
+    file: ./../secrets/credentials.txt
 
 volumes:
   db_data:

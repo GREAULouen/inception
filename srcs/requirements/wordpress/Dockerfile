@@ -1,7 +1,9 @@
-FROM debian:buster
+FROM debian:buster-slim
 
 # Install PHP and required extensions
-RUN apt-get update && apt-get install -y php-fpm php-mysql && \
+RUN apt-get update && apt-get install -y \
+	  php-fpm \
+	  php-mysql && \
 	rm -rf /var/lib/apt/lists/*
 
 # Copy PHP-FPM configuration file
