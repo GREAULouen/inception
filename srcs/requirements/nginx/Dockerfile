@@ -1,7 +1,18 @@
-FROM debian:12.5
+FROM debian:buster
 
-RUN apt update -y && apt upgrade -y && apt install -y nginx
+# Install NGINX
+RUN apt-get update && apt-get install -y \
+	  nginx && \
+	rm -rf /var/lib/apt/lists/*
 
-COPY conf/default nginx:/etc/nginx/sites-available/default
+# Copy NGINX configuration file
+COPY conf/nginx.conf /etc/nginx/nginx.conf
 
-CMD [ "nginx", "-g", "daemon off;" ]
+# Create required directories
+RUN mkdir -p /run/nginx
+
+# Expose port 80 and 443
+EXPOSE 80 443
+
+# Start NGINX
+CMD ["nginx", "-g", "daemon off;"]
