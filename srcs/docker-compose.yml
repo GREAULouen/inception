@@ -2,19 +2,40 @@ version: "3.8"
 
 services:
   nginx:
-    build: requirements/nginx/
-    container_name: nginx
+    build:
+      context: ./requirements/nginx
+    volumes:
+      - ./nginx/html:/usr/share/nginx/html
+      - ./nginx/certs:/etc/nginx/certs
     ports:
       - "80:80"
-    volumes:
-      - ./web:/var/www/html
-
-  wordpress:
-    build: requirements/wordpress/
-    container_name: wp-php
-    volumes:
-      - ./web:/var/www/html
+      - "443:443"
+    restart: always
 
   mariadb:
-    build: requirements/mariadb/
-    container_name: mariadb
+    build:
+      context: ./requirements/mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wpuser
+      MYSQL_PASSWORD: wppassword
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: always
+
+  wordpress:
+    build:
+      context: ./requirements/wordpress
+    volumes:
+      - wp_data:/var/www/html
+    environment:
+      WORDPRESS_DB_HOST: mariadb:3306
+      WORDPRESS_DB_USER: wpuser
+      WORDPRESS_DB_PASSWORD: wppassword
+      WORDPRESS_DB_NAME: wordpress
+    restart: always
+
+volumes:
+  db_data:
+  wp_data:
