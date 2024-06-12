@@ -1,10 +1,11 @@
-FROM debian:12.5
+FROM debian:buster
 
-RUN apt update -y && apt upgrade -y && apt install -y mariadb-server
+# Install MariaDB
+RUN apt-get update && apt-get install -y mariadb-server && \
+	rm -rf /var/lib/apt/lists/*
 
-COPY conf/50-server.cnf /etc/mysql/mariadb.conf.d/50-server.cnf
-COPY tools/init.sql /etc/mysql/init.sql
+# Expose port 3306
+EXPOSE 3306
 
-RUN mkdir -p /run/mysqld
-
-CMD [ "mysqld" ]
+# Start MariaDB
+CMD ["mysqld"]
