@@ -1,7 +1,14 @@
-FROM debian:12.5
+FROM debian:buster
 
-RUN apt update -y && apt upgrade -y && apt install -y php-fpm
+# Install PHP and required extensions
+RUN apt-get update && apt-get install -y php-fpm php-mysql && \
+	rm -rf /var/lib/apt/lists/*
 
-COPY conf/www.conf /etc/php/8.2/fpm/pool.d/www.conf
+# Copy PHP-FPM configuration file
+COPY conf/php-fpm.conf /etc/php/7.3/fpm/pool.d/www.conf
 
-CMD [ "php-fpm8.2", "-F" ]
+# Expose port 9000
+EXPOSE 9000
+
+# Start PHP-FPM
+CMD ["php-fpm7.3", "-F"]
