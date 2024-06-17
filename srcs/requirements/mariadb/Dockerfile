@@ -15,13 +15,13 @@ RUN mkdir -p /var/run/mysqld \
 EXPOSE 3306
 
 # Setup db
-COPY tools/script.sh    /usr/local/bin/
+COPY tools/script.sh    /usr/local/bin/mariadb_script.sh
 COPY conf/init.sql      /usr/local/bin/
-RUN chmod +x            /usr/local/bin/script.sh
+RUN chmod +x            /usr/local/bin/mariadb_script.sh
 RUN chmod +x            /usr/local/bin/init.sql
 
 # Execute the mariadb setup script when entering the container
-ENTRYPOINT [ "/usr/local/bin/script.sh" ]
+ENTRYPOINT [ "/usr/local/bin/mariadb_script.sh" ]
 
 # Start MariaDB
 CMD ["mysqld", "--bind-address=0.0.0.0"]

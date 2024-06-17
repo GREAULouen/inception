@@ -9,6 +9,14 @@ RUN apt-get update && apt-get install -y \
 # Copy PHP-FPM configuration file
 COPY conf/php-fpm.conf /etc/php/7.3/fpm/pool.d/www.conf
 
+RUN mkdir -p /run/php
+
+COPY tools/script.sh /usr/local/bin/wp_script.sh
+RUN chmod +x /usr/local/bin/wp_script.sh
+ENTRYPOINT [ "/usr/local/bin/wp_script.sh" ]
+
+WORKDIR /var/www/html/
+
 # Expose port 9000
 EXPOSE 9000
 
