@@ -2,6 +2,7 @@ version: "3.8"
 
 services:
   nginx:
+    container_name: nginx
     build:
       context: ./requirements/nginx
     volumes:
@@ -11,29 +12,37 @@ services:
       - "443:443"
     restart: always
     environment:
-      - NGINX_HOST=lgreau.42.fr
+      - NGINX_HOST=localhost
     secrets:
       - db_password
+    networks:
+      - inception_network
 
   mariadb:
+    container_name: mariadb
     build:
       context: ./requirements/mariadb
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: /run/secrets/db_root_password
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: /run/secrets/db_password
     volumes:
-      - /home/lgreau/data/db:/var/lib/mysql
+      - db_data:/var/lib/mysql
     restart: always
     secrets:
       - db_password
+    networks:
+      - inception_network
 
   wordpress:
+    container_name: wordpress
+    depends_on:
+      - mariadb
     build:
       context: ./requirements/wordpress
     volumes:
-      - /home/lgreau/data/wp:/var/www/html
+      - wp_data:/var/www/html
     environment:
       WORDPRESS_DB_HOST: mariadb:3306
       WORDPRESS_DB_USER: ${MYSQL_USER}
@@ -44,6 +53,8 @@ services:
     restart: always
     secrets:
       - db_password
+    networks:
+      - inception_network
 
 secrets:
   db_password:
@@ -55,4 +66,9 @@ secrets:
 
 volumes:
   db_data:
+    - /home/lgreau/data/db
   wp_data:
+    - /home/lgreau/data/wp
+
+networks:
+  inception_network:
