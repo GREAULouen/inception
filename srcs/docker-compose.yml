@@ -36,16 +36,11 @@ services:
       - db_root_password
     networks:
       - inception_network
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      timeout: 5s
-      retries: 10
 
   wordpress:
     container_name: wordpress
     depends_on:
-      mariadb:
-        condition: service_healthy
+      - mariadb
     build:
       context: ./requirements/wordpress
     volumes:

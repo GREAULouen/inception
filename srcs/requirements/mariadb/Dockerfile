@@ -1,21 +1,27 @@
-FROM debian:buster-slim
+FROM debian:bookworm
 
 # Install MariaDB
 RUN apt-get update && apt-get install -y \
-	  mariadb-server \
-	  mariadb-client \
-		gettext-base && \
-	rm -rf /var/lib/apt/lists/*
+    mariadb-server \
+    mariadb-client \
+    gettext-base && \
+    rm -rf /var/lib/apt/lists/*
 
+# MariaDB config
 COPY conf/mariadb.conf /etc/mysql/mariadb.conf.d/50-server.cnf
 
-# Mysqld setup
-RUN mkdir -p /run/mysqld
+# Ensure necessary directories exist
+RUN rm -rf /var/lib/mysql/* && \
+    mkdir -p /run/mysqld /var/lib/mysql && \
+    chown -R mysql:mysql /run/mysqld /var/lib/mysql
 
-# Setup db
+# Copy scripts
 COPY tools/init.sql      /etc/mysql/init.sql
-COPY tools/script.sh    mariadb_script.sh
-RUN chmod +x            mariadb_script.sh
+COPY tools/script.sh    /usr/local/bin/mariadb_script.sh
+RUN chmod +x /usr/local/bin/mariadb_script.sh
 
-# Execute the mariadb setup script when entering the container
-ENTRYPOINT [ "./mariadb_script.sh" ]
+# Run as mysql user
+USER mysql
+
+# Run script
+ENTRYPOINT ["/usr/local/bin/mariadb_script.sh"]

@@ -5,14 +5,14 @@ chmod +x /usr/local/bin/wp
 
 WP_DB_PASSWORD=$(cat /run/secrets/db_password)
 
-wp core download --allow-root
-
 # Wordpress require mariaDB
 until nc -z -w50 mariadb 3306
 do
 	echo "Waiting for MariaDB to start..."
 	sleep 1
 done
+
+wp core download --allow-root
 
 wp config create \
 	--dbname=$WP_DB_NAME \
@@ -39,4 +39,4 @@ wp user create \
 
 chown -R www-data:www-data /var/www/html
 
-php-fpm7.3 -F
+php-fpm7.4 -F
