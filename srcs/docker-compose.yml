@@ -3,9 +3,12 @@ version: "3.8"
 services:
   nginx:
     container_name: nginx
+    depends_on:
+      - wordpress
     build:
       context: ./requirements/nginx
     volumes:
+      - wp_data:/var/www/html
       - ./nginx/html:/usr/share/nginx/html
       - ./nginx/certs:/etc/nginx/certs
     ports:
@@ -23,33 +26,38 @@ services:
     build:
       context: ./requirements/mariadb
     environment:
-      MYSQL_ROOT_PASSWORD: /run/secrets/db_root_password
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_USER: ${MYSQL_USER}
-      MYSQL_PASSWORD: /run/secrets/db_password
+      WP_DB_NAME: ${WP_DB_NAME}
+      WP_DB_USER: ${WP_DB_USER}
     volumes:
       - db_data:/var/lib/mysql
     restart: always
     secrets:
       - db_password
+      - db_root_password
     networks:
       - inception_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 10
 
   wordpress:
     container_name: wordpress
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
     build:
       context: ./requirements/wordpress
     volumes:
       - wp_data:/var/www/html
     environment:
-      WORDPRESS_DB_HOST: mariadb:3306
-      WORDPRESS_DB_USER: ${MYSQL_USER}
-      WORDPRESS_DB_PASSWORD: /run/secrets/db_password
-      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+      WP_DB_HOST: mariadb:3306
+      WP_DB_USER: ${WP_DB_USER}
+      WP_DB_USER_EMAIL: ${WP_DB_USER_EMAIL}
+      WP_DB_NAME: ${WP_DB_NAME}
       WP_ADMIN_USER: ${WP_ADMIN_USER}
       WP_ADMIN_PASSWORD: ${WP_ADMIN_PASSWORD}
+      WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL}
     restart: always
     secrets:
       - db_password
@@ -61,22 +69,22 @@ volumes:
     driver: local
     driver_opts:
       type: none
-      device: /home/lgreau/data/mysql
+      device: ./data/mysql
       o: bind
   wp_data:
     driver: local
     driver_opts:
       type: none
-      device: /home/lgreau/data/wordpress
+      device: ./data/wordpress
       o: bind
 
 secrets:
   db_password:
-    file: ./../secrets/db_password.txt
+    file: ./secrets/db_password.txt
   db_root_password:
-    file: ./../secrets/db_root_password.txt
+    file: ./secrets/db_root_password.txt
   credentials:
-    file: ./../secrets/credentials.txt
+    file: ./secrets/credentials.txt
 
 networks:
   inception_network:

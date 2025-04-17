@@ -3,7 +3,8 @@ FROM debian:buster-slim
 # Install NGINX
 RUN apt-get update && apt-get install -y \
 	  nginx \
-	  openssl
+	  openssl \
+		netcat
 
 # SSL setup
 RUN mkdir -p /etc/nginx/ssl
@@ -21,5 +22,6 @@ RUN mkdir -p /run/nginx
 # Expose port 443
 EXPOSE 443
 
-# Start NGINX
-CMD ["nginx", "-g", "daemon off;"]
+COPY tools/script.sh script.sh
+RUN chmod +x script.sh
+CMD ["/script.sh"]

@@ -1,3 +1,8 @@
+SECRETS_DIR := secrets
+SRC_DIR := srcs
+
+all: build up
+
 build:
 	docker-compose build
 
@@ -12,3 +17,5 @@ logs:
 
 restart:
 	docker-compose restart
+
+re: down all

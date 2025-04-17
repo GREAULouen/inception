@@ -1,17 +1,11 @@
 #!/bin/bash
 
+export WP_DB_PASSWORD=$(cat /run/secrets/db_password)
+export WP_DB_ROOT_PASSWORD=$(cat /run/secrets/db_root_password)
+
+envsubst < /etc/mysql/init.sql > /etc/mysql/tmp.sql
+mv /etc/mysql/tmp.sql /etc/mysql/init.sql
+
 # Install the db
 mysql_install_db
-
-service mysql start;
-
-mysql -e "CREATE DATABASE IF NOT EXISTS \`${SQL_DATABASE}\`;"
-mysql -e "CREATE USER IF NOT EXISTS \`${SQL_USER}\`@'%' IDENTIFIED BY '${SQL_PASSWORD}';"
-mysql -e "GRANT ALL PRIVILEGES ON \`${SQL_DATABASE}\`.* TO \`${SQL_USER}\`@'%' IDENTIFIED BY '${SQL_PASSWORD}';"
-mysql -e "ALTER USER 'root'@'%' IDENTIFIED BY '${SQL_ROOT_PASSWORD}';"
-mysql -e "FLUSH PRIVILEGES;"
-mysqladmin -u root -p$SQL_ROOT_PASSWORD shutdown
-
-service mysql stop;
-
-exec "$@"
+mysqld --init-file=/etc/mysql/init.sql
