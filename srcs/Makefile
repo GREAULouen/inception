@@ -4,8 +4,8 @@ build:
 	mkdir -p /home/lgreau/data/mysql
 	mkdir -p /home/lgreau/data/wordpress
 	mkdir -p secrets
-	echo "azerty" >> secrets/db_password.txt
-	echo "azerty" >> secrets/db_root_password.txt
+	echo "azerty" > secrets/db_password.txt
+	echo "azerty" > secrets/db_root_password.txt
 	docker compose build
 
 up:
