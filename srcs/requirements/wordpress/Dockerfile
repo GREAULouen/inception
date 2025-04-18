@@ -22,10 +22,8 @@ RUN apt-get update && apt-get install -y \
     php7.4-dom \
     php7.4-zip \
     curl \
-    netcat-openbsd && \
-    rm -rf /var/lib/apt/lists/*
+    netcat-openbsd
 
-# Copy PHP-FPM config (make sure the path matches PHP 7.4)
 COPY conf/php-fpm.conf /etc/php/7.4/fpm/pool.d/www.conf
 
 RUN mkdir -p /run/php

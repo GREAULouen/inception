@@ -2,4 +2,4 @@ Inception.pdf
 .env
 secrets
 data
-nginx
+nginx/
